@@ -1,6 +1,5 @@
 var config =  {};
 
-config.cacheLocation = './data/cache/';
 config.databaseLocation = './data/'
 config.apiUrl = '/api';
 config.port = 8080;

@@ -3,6 +3,7 @@ var client = dgram.createSocket('udp4');
 
 // express
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express(); // define our app using express
 
 // database
@@ -15,8 +16,14 @@ var fs = require('fs');
 var config = require('./config');
 var appInfo = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
-// random functions
+// database setup
 
+db.devices = new Datastore({
+  filename: config.databaseLocation + 'devices.db',
+  autoload: true
+});
+
+// random functions
 function format(str) {
   var args = [].slice.call(arguments, 1),
     i = 0;
@@ -63,6 +70,9 @@ client.bind(config.port);
 
 // http server
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -80,6 +90,21 @@ router.get('/', function(req, res) {
 
 router.get('/package.json', function(req, res) {
   res.json(appInfo);
+});
+
+router.post('/register', function(req, res) {
+  ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  if (req.body.device_type) {
+    db.devices.insert({
+      device_type: req.body.device_type,
+      register_time: new Date(),
+      ip_address: ip_address
+    }, function(err, doc) {
+      res.json(doc);
+    });
+  } else {
+    res.sendStatus(400); // #TODO: Error codes
+  }
 });
 
 // all of our routes will be prefixed with config.apiUrl
