@@ -1,0 +1,25 @@
+{
+  "name": "p3-server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ludvigbruchmann/P3-Server.git"
+  },
+  "author": "Ludvig Alexander Brüchmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ludvigbruchmann/P3-Server/issues"
+  },
+  "homepage": "https://github.com/ludvigbruchmann/P3-Server#readme",
+  "dependencies": {
+    "dgram": "^1.0.1",
+    "express": "^4.16.3",
+    "nedb": "^1.8.0"
+  }
+}
