@@ -61,7 +61,7 @@ client.on('listening', function () {
 
 client.on('message', function (message, rinfo) {
   debugMessage(
-    format('%s:%s @ service discovery', rinfo.address, rinfo.port)
+    format('%s:%s @ service discovery : %s', rinfo.address, rinfo.port, message)
   );
   client.send(message, 0, message.length, rinfo.port, rinfo.ip);
 });
