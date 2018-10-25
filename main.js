@@ -51,6 +51,11 @@ function debugMessage(msg) {
 
 // service discovery
 
+client.on('error', (err) => {
+	console.log('Server Error:\n${err.stack}');
+	client.close();
+});
+
 client.on('listening', function () {
   var address = client.address();
   debugMessage(
@@ -61,9 +66,9 @@ client.on('listening', function () {
 
 client.on('message', function (message, rinfo) {
   debugMessage(
-    format('%s:%s @ service discovery', rinfo.address, rinfo.port)
+    format('%s:%s @ service discovery : %s', rinfo.address, rinfo.port, message)
   );
-  client.send(message, 0, message.length, rinfo.port, rinfo.ip);
+  client.send(message, 0, message.length, rinfo.port, rinfo.address);
 });
 
 client.bind(config.port);
