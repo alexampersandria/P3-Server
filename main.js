@@ -112,6 +112,35 @@ router.post('/register', function(req, res) {
   }
 });
 
+router.get('/devices', function(req, res) {
+  db.devices.find({}, function(err, docs) {
+    res.json(docs);
+  });
+});
+
+router.get('/scan', function(req, res) { // prompt f_modules to scan person for tags
+  var message = new Buffer("scan existing");
+  db.devices.find({ device_type: "f_module" }, function(err, docs) {
+    for (var i = 0; i < docs.length; i++) {
+      client.send(message, 0, message.length, config.port, docs[i].ip_address); // UDP, #TODO: make it TCP
+    }
+  });
+  res.sendStatus(200); // #TODO: Error handling
+  // #TODO: Reply from f_module
+});
+
+router.get('/scan/new', function(req, res) { // prompt f_modules to scan for new tag
+  var message = new Buffer("scan new");
+  db.devices.find({ device_type: "f_module" }, function(err, docs) {
+    for (var i = 0; i < docs.length; i++) {
+      client.send(message, 0, message.length, config.port, docs[i].ip_address); // UDP, #TODO: make it TCP
+    }
+  });
+  res.sendStatus(200); // #TODO: Error handling
+  // #TODO: Reply from f_module
+  // #TODO: Reply to app
+});
+
 // all of our routes will be prefixed with config.apiUrl
 app.use(config.apiUrl, router);
 
