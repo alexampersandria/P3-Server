@@ -147,42 +147,60 @@ router.get('/tags', function(req, res) {
 
 // client.android #TODO: add auth for "production".
 
-router.get('/scan/new', function(req, res) {
-  newScanPromt = new Date();
-  res.sendStatus(200);
+router.post('/scan/new', function(req, res) {
+  if (req.body.mac_address && req.body.tag) {
+    db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+      if ( !docs ) {
+        tempObject = {
+          tag: req.body.tag,
+          name: req.body.tag,
+          desc: "",
+          time: new Date()
+        };
+        db.tags.insert(tempObject);
+        res.json(tempObject);
+        // #TODO: send message to client.android
+      } else {
+        res.sendStatus(409); // conflict, tag already exists
+      }
+    });
+  }
 });
 
 // nodemcu.f_module
 
-router.post('/scan', function(req, res) {
+router.post('/scan/single', function(req, res) {
+  debugMessage("/scan/single is deprecated, use /scan instead");
   if (req.body.mac_address && req.body.tag) {
-    if ( newScanPromt.getTime() + config.newScanPromtTimeout > new Date().getTime() ) { // if promted to scan new tag
-      debugMessage('Scanning new tag ' + req.body.tag);
-      db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
-        if ( !docs ) {
-          tempObject = {
-            tag: req.body.tag,
-            name: req.body.tag,
-            desc: "",
-            time: new Date()
-          };
-          db.tags.insert(tempObject);
-          res.json(tempObject);
-          // #TODO: send message to client.android
-        } else {
-          res.sendStatus(409); // conflict, tag already exists
-        }
-      });
-      newScanPromt = new Date(0);
-    } else {
-      db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
-        if ( docs ) { // success! we scanned a tag that already exists.
-          res.json(docs);
-        } else {
-          res.sendStatus(404);
-        }
+    db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+      if ( docs ) { // success! we scanned a tag that already exists.
+        res.json(docs);
+      } else {
+        res.sendStatus(404);
+      }
+    });
+  } else {
+    res.sendStatus(422);
+  }
+});
+
+router.post('/scan', function(req, res) {
+  if (req.body.mac_address && req.body.tags) {
+
+    querry = [];
+    for (var i = 0; i < req.body.tags.length; i++) {
+      querry.push({
+        tag: req.body.tags[i]
       });
     }
+    
+    db.tags.find({ $or: querry }, function (err, docs) {
+      if ( docs ) { // success! we scanned a tag that already exists.
+        res.json(docs);
+      } else {
+        res.sendStatus(404);
+      };
+    });
   } else {
     res.sendStatus(422);
   }

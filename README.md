@@ -24,11 +24,7 @@ Store _id on the module, it will be used later on when interacting with the API.
 
 **GET /api/scan/new**
 
-Prompts the server to register next scanned tag as a new tag.
-
-**POST /api/scan**
-
-Scan a tag. #TODO: Processing.
+Scan a tag and add it to the database.
 
 ```JSON
 Required body:
@@ -45,6 +41,39 @@ Returns:
     "time": "[TIMESTAMP]",
     "_id": "[DEVICE ID]"
 }
+```
+
+**POST /api/scan**
+
+Scan multiple tags. #TODO: Processing.
+
+```JSON
+Required body:
+{
+	"mac_address": "[MAC ADDRESS]",
+	"tags": [
+    "[TAG]",
+    "[TAG]"
+  ]
+}
+
+Returns:
+[
+  {
+    "tag": "[TAG]",
+    "name": "[TAG]",
+    "desc": "",
+    "time": "[TIMESTAMP]",
+    "_id": "[DEVICE ID]"
+  },
+  {
+    "tag": "[TAG]",
+    "name": "[TAG]",
+    "desc": "",
+    "time": "[TIMESTAMP]",
+    "_id": "[DEVICE ID]"
+  }
+]
 ```
 
 **POST /user/register**
