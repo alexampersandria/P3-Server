@@ -23,7 +23,24 @@ db.devices = new Datastore({
   autoload: true
 });
 
+// user authentication
+
+var bcrypt = require('bcrypt');
+
+db.userdata = new Datastore({
+  filename: config.databaseLocation + 'userdata.db',
+  autoload: true
+});
+
+db.tags = new Datastore({
+  filename: config.databaseLocation + 'tags.db',
+  autoload: true
+});
+
+db.sessions = new Datastore(); // In-memory only
+
 // random functions
+
 function format(str) {
   var args = [].slice.call(arguments, 1),
     i = 0;
@@ -48,6 +65,10 @@ function debugMessage(msg) {
     );
   }
 }
+
+// global variables, yeah I'm that lazy
+
+var newScanPromt = new Date(0); // update on new tag scan prompt from client.android, allows for new scan timeout
 
 // service discovery
 
@@ -118,27 +139,113 @@ router.get('/devices', function(req, res) {
   });
 });
 
-router.get('/scan', function(req, res) { // prompt f_modules to scan person for tags
-  var message = new Buffer("scan existing");
-  db.devices.find({ device_type: "f_module" }, function(err, docs) {
-    for (var i = 0; i < docs.length; i++) {
-      client.send(message, 0, message.length, config.port, docs[i].ip_address); // UDP, #TODO: make it TCP
-    }
+router.get('/tags', function(req, res) {
+  db.tags.find({}, function(err, docs) {
+    res.json(docs);
   });
-  res.sendStatus(200); // #TODO: Error handling
-  // #TODO: Reply from f_module
 });
 
-router.get('/scan/new', function(req, res) { // prompt f_modules to scan for new tag
-  var message = new Buffer("scan new");
-  db.devices.find({ device_type: "f_module" }, function(err, docs) {
-    for (var i = 0; i < docs.length; i++) {
-      client.send(message, 0, message.length, config.port, docs[i].ip_address); // UDP, #TODO: make it TCP
+// client.android #TODO: add auth for "production".
+
+router.get('/scan/new', function(req, res) {
+  newScanPromt = new Date();
+  res.sendStatus(200);
+});
+
+// nodemcu.f_module
+
+router.post('/scan', function(req, res) {
+  if (req.body.mac_address && req.body.tag) {
+    if ( newScanPromt.getTime() + config.newScanPromtTimeout > new Date().getTime() ) { // if promted to scan new tag
+      debugMessage('Scanning new tag ' + req.body.tag);
+      db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+        if ( !docs ) {
+          tempObject = {
+            tag: req.body.tag,
+            name: req.body.tag,
+            desc: "",
+            time: new Date()
+          };
+          db.tags.insert(tempObject);
+          res.json(tempObject);
+          // #TODO: send message to client.android
+        } else {
+          res.sendStatus(409); // conflict, tag already exists
+        }
+      });
+      newScanPromt = new Date(0);
+    } else {
+      db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+        if ( docs ) { // success! we scanned a tag that already exists.
+          res.json(docs);
+        } else {
+          res.sendStatus(404);
+        }
+      });
     }
+  } else {
+    res.sendStatus(422);
+  }
+});
+
+// users
+
+router.get('/user/:id', function(req, res) {
+  db.userdata.findOne({ user: req.params.id }, function(err, docs) {
+    delete docs.pass; // remove password from JSON response
+    res.json(docs);
   });
-  res.sendStatus(200); // #TODO: Error handling
-  // #TODO: Reply from f_module
-  // #TODO: Reply to app
+});
+
+router.post('/user/register', function(req, res) {
+  if (req.body.username && req.body.password) {
+
+    db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+      if ( !docs ) { // if user with given username doesn't exist
+        bcrypt.hash(req.body.password, config.saltRounds, function(err, hash) {
+          db.userdata.insert({
+            user: req.body.username,
+            pass: hash,
+            admin: false
+          })
+        });
+        res.sendStatus(200);
+      } else {
+        debugMessage(format('User %s already exists', username));
+        res.sendStatus(400);
+      }
+    })
+
+  }
+});
+
+router.post('/user/login', function(req, res) {
+  if (req.body.username && req.body.password) {
+
+    db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+      bcrypt.compare(req.body.password, docs.pass, function(err, hashres) {
+        if (hashres) {
+
+          var tokenObject = {
+            user: req.body.username,
+            token: sessionToken = hash(
+              new Date() + req.body.username
+            )
+          };
+
+          db.sessions.insert(tokenObject)
+
+          res.json(tokenObject);
+
+        } else {
+          res.sendStatus(400);
+        }
+      });
+    })
+
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 // all of our routes will be prefixed with config.apiUrl
