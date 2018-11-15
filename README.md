@@ -39,7 +39,7 @@ Returns:
     "name": "[TAG]",
     "desc": "",
     "time": "[TIMESTAMP]",
-    "_id": "[DEVICE ID]"
+    "_id": "[TAG ID]"
 }
 ```
 
@@ -64,49 +64,36 @@ Returns:
     "name": "[TAG]",
     "desc": "",
     "time": "[TIMESTAMP]",
-    "_id": "[DEVICE ID]"
+    "_id": "[TAG ID]"
   },
   {
     "tag": "[TAG]",
     "name": "[TAG]",
     "desc": "",
     "time": "[TIMESTAMP]",
-    "_id": "[DEVICE ID]"
+    "_id": "[TAG ID]"
   }
 ]
 ```
 
-**POST /user/register**
+**POST /api/edit**
 
-Register a new user.
-
-```JSON
-Required body:
-{
-  "username": "[USERNAME]",
-  "password": "[PASSWORD]"
-}
-
-Returns:
-200
-```
-**note:** there is a bug where it doesn't write the hashed password for some reason, no idea why.
-
-**POST /user/login**
-
-Register a new user.
+Edit tag data.
 
 ```JSON
 Required body:
 {
-  "username": "[USERNAME]",
-  "password": "[PASSWORD]"
+	"tag": "[TAG]",
+  "name": "[NAME]",
+  "desc": "[DESCRIPTION]"
 }
 
 Returns:
 {
-  "user": "[USERNAME]",
-  "token": "[AUTH TOKEN]"
+    "tag": "[TAG]",
+    "name": "[NAME]",
+    "desc": "[DESCRIPTION]",
+    "time": "[TIMESTAMP]",
+    "_id": "[TAG ID]"
 }
 ```
-**\#TODO**: Change user to username for consistency.

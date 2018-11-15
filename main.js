@@ -165,6 +165,26 @@ router.get('/tags', function(req, res) {
 
 // client.android #TODO: add auth for "production".
 
+router.post('/edit', function(req, res) {
+	if (req.body.tag && req.body.name && req.body.desc) {
+    db.tags.update({ tag: req.body.tag }, { $set: {
+      name: req.body.name,
+      desc: req.body.desc
+    }});
+
+
+		db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+      if (docs) {
+				res.json(docs);
+			} else {
+				res.sendStatus(500); // something went wrong somewhere.
+			}
+		});
+	}
+});
+
+// nodemcu.f_module
+
 router.post('/scan/new', function(req, res) {
 	if (req.body.mac_address && req.body.tag) {
 		db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
@@ -184,8 +204,6 @@ router.post('/scan/new', function(req, res) {
 		});
 	}
 });
-
-// nodemcu.f_module
 
 router.post('/scan/single', function(req, res) {
 	debugMessage('/scan/single is deprecated, use /scan instead');
@@ -235,55 +253,13 @@ router.get('/user/:id', function(req, res) {
 });
 
 router.post('/user/register', function(req, res) {
-	if (req.body.username && req.body.password) {
-		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
-			if (!docs) {
-				// if user with given username doesn't exist
-				bcrypt.hash(req.body.password, config.saltRounds, function(
-					err,
-					hash
-				) {
-					db.userdata.insert({
-						user: req.body.username,
-						pass: hash,
-						admin: false
-					});
-				});
-				res.sendStatus(200);
-			} else {
-				debugMessage(format('User %s already exists', req.body.username));
-				res.sendStatus(400);
-			}
-		});
-	}
+  res.send('user functionality temporarily disabled.');
+  // #TODO: this.
 });
 
 router.post('/user/login', function(req, res) {
-	if (req.body.username && req.body.password) {
-		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
-			bcrypt.compare(req.body.password, docs.pass, function(
-				err,
-				hashres
-			) {
-				if (hashres) {
-					var tokenObject = {
-						user: req.body.username,
-						token: (sessionToken = hash(
-							new Date() + req.body.username
-						))
-					};
-
-					db.sessions.insert(tokenObject);
-
-					res.json(tokenObject);
-				} else {
-					res.sendStatus(400);
-				}
-			});
-		});
-	} else {
-		res.sendStatus(400);
-	}
+  res.send('user functionality temporarily disabled.');
+  // #TODO: also this.
 });
 
 // all of our routes will be prefixed with config.apiUrl
