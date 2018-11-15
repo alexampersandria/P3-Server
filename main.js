@@ -112,6 +112,7 @@ app.use(bodyParser.json());
 var router = express.Router();
 
 router.use(function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
 	debugMessage(
 		format(
 			'%s @ %s',
@@ -250,7 +251,7 @@ router.post('/user/register', function(req, res) {
 				});
 				res.sendStatus(200);
 			} else {
-				debugMessage(format('User %s already exists', username));
+				debugMessage(format('User %s already exists', req.body.username));
 				res.sendStatus(400);
 			}
 		});
