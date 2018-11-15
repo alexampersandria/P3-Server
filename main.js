@@ -253,13 +253,55 @@ router.get('/user/:id', function(req, res) {
 });
 
 router.post('/user/register', function(req, res) {
-  res.send('user functionality temporarily disabled.');
-  // #TODO: this.
+	if (req.body.username && req.body.password) {
+		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+			if (!docs) {
+				// if user with given username doesn't exist
+				bcrypt.hash(req.body.password, config.saltRounds, function(
+					err,
+					hash
+				) {
+					db.userdata.insert({
+						user: req.body.username,
+						pass: hash,
+						admin: false
+					});
+				});
+				res.sendStatus(200);
+			} else {
+				debugMessage(format('User %s already exists', req.body.username));
+				res.sendStatus(400);
+			}
+		});
+	}
 });
 
 router.post('/user/login', function(req, res) {
-  res.send('user functionality temporarily disabled.');
-  // #TODO: also this.
+	if (req.body.username && req.body.password) {
+		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+			bcrypt.compare(req.body.password, docs.pass, function(
+				err,
+				hashres
+			) {
+				if (hashres) {
+					var tokenObject = {
+						user: req.body.username,
+						token: (sessionToken = hash(
+							new Date() + req.body.username
+						))
+					};
+
+					db.sessions.insert(tokenObject);
+
+					res.json(tokenObject);
+				} else {
+					res.sendStatus(400);
+				}
+			});
+		});
+	} else {
+		res.sendStatus(400);
+	}
 });
 
 // all of our routes will be prefixed with config.apiUrl
