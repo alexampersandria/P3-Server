@@ -22,7 +22,7 @@ Returns:
 Store _id on the module, it will be used later on when interacting with the API.
 ```
 
-**GET /api/scan/new**
+**POST /api/scan/new**
 
 Scan a tag and add it to the database.
 
