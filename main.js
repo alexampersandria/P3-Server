@@ -166,13 +166,12 @@ router.get('/tags', function(req, res) {
 // client.android #TODO: add auth for "production".
 
 router.post('/edit', function(req, res) {
-	if (req.body.tag && req.body.name && req.body.desc) {
+	if (req.body.id && req.body.name) {
 		db.tags.update(
-			{ tag: req.body.tag },
+			{ _id: req.body.id },
 			{
 				$set: {
-					name: req.body.name,
-					desc: req.body.desc
+					name: req.body.name
 				}
 			}
 		);
