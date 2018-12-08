@@ -2,7 +2,7 @@
 
 ## API endpoints
 
-**/api/register**
+**POST /api/register**
 
 Registers module with the server.
 
@@ -20,4 +20,80 @@ Returns:
     "_id": "[DEVICE ID]"
 }
 Store _id on the module, it will be used later on when interacting with the API.
+```
+
+**POST /api/scan/new**
+
+Scan a tag and add it to the database.
+
+```JSON
+Required body:
+{
+	"mac_address": "[MAC ADDRESS]",
+	"tag": "[TAG]"
+}
+
+Returns:
+{
+    "tag": "[TAG]",
+    "name": "[TAG]",
+    "desc": "",
+    "time": "[TIMESTAMP]",
+    "_id": "[TAG ID]"
+}
+```
+
+**POST /api/scan**
+
+Scan multiple tags. #TODO: Processing.
+
+```JSON
+Required body:
+{
+	"mac_address": "[MAC ADDRESS]",
+	"tags": [
+    "[TAG]",
+    "[TAG]"
+  ]
+}
+
+Returns:
+[
+  {
+    "tag": "[TAG]",
+    "name": "[TAG]",
+    "desc": "",
+    "time": "[TIMESTAMP]",
+    "_id": "[TAG ID]"
+  },
+  {
+    "tag": "[TAG]",
+    "name": "[TAG]",
+    "desc": "",
+    "time": "[TIMESTAMP]",
+    "_id": "[TAG ID]"
+  }
+]
+```
+
+**POST /api/edit**
+
+Edit tag data.
+
+```JSON
+Required body:
+{
+	"tag": "[TAG]",
+  "name": "[NAME]",
+  "desc": "[DESCRIPTION]"
+}
+
+Returns:
+{
+    "tag": "[TAG]",
+    "name": "[NAME]",
+    "desc": "[DESCRIPTION]",
+    "time": "[TIMESTAMP]",
+    "_id": "[TAG ID]"
+}
 ```
