@@ -1,5 +1,7 @@
 # P3-Server
 
+**Disclaimer:** If you are trying to run the server yourself, you might get an error while running ```npm install``` saying that there was en error installing ```bcrypt```.  This seems to be a common issuebut the only working solution for us was to run ```npm i -g yarn; yarn install```
+
 ## API endpoints
 
 **POST /api/register**
