@@ -147,7 +147,7 @@ router.post('/register', function(req, res) {
 			}
 		);
 	} else {
-		res.sendStatus(400); // #TODO: Error codes
+		res.sendStatus(422); // #TODO: Error codes
 	}
 });
 
@@ -183,6 +183,8 @@ router.post('/edit', function(req, res) {
 				res.sendStatus(500); // something went wrong somewhere.
 			}
 		});
+	} else {
+		res.sendStatus(422);
 	}
 });
 
@@ -205,6 +207,8 @@ router.post('/scan/new', function(req, res) {
 				res.sendStatus(409); // conflict, tag already exists
 			}
 		});
+	} else {
+		res.sendStatus(422);
 	}
 });
 
@@ -273,6 +277,8 @@ router.post('/user/register', function(req, res) {
 				res.sendStatus(400);
 			}
 		});
+	} else {
+		res.sendStatus(422);
 	}
 });
 
@@ -295,7 +301,7 @@ router.post('/user/login', function(req, res) {
 			res.sendStatus(400);
 		});
 	} else {
-		res.sendStatus(400);
+		res.sendStatus(422);
 	}
 });
 
