@@ -274,7 +274,7 @@ router.post('/user/register', function(req, res) {
 				debugMessage(
 					format('User %s already exists', req.body.username)
 				);
-				res.sendStatus(400);
+				res.sendStatus(409);
 			}
 		});
 	} else {
@@ -298,7 +298,7 @@ router.post('/user/login', function(req, res) {
 				return;
 			}
 			debugMessage(format('User %s already exists', req.body.username));
-			res.sendStatus(400);
+			res.sendStatus(409);
 		});
 	} else {
 		res.sendStatus(422);
