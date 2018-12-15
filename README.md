@@ -85,7 +85,7 @@ Edit tag data.
 ```JSON
 Required body:
 {
-	"tag": "[TAG]",
+	"id": "[TAG ID]",
   "name": "[NAME]",
   "desc": "[DESCRIPTION]"
 }

@@ -166,25 +166,24 @@ router.get('/tags', function(req, res) {
 // client.android #TODO: add auth for "production".
 
 router.post('/edit', function(req, res) {
-	if (req.body.id && req.body.name) {
+	if (req.body.id && req.body.name && req.body.desc) {
 		db.tags.update(
 			{ _id: req.body.id },
 			{
 				$set: {
-					name: req.body.name
+					name: req.body.name,
+					desc: req.body.desc
 				}
 			}
 		);
 
-		db.tags.findOne({ tag: req.body.tag }, function(err, docs) {
+		db.tags.findOne({ _id: req.body.id }, function(err, docs) {
 			if (docs) {
 				res.json(docs);
 			} else {
 				res.sendStatus(500); // something went wrong somewhere.
 			}
 		});
-	} else {
-		res.sendStatus(422);
 	}
 });
 
