@@ -25,7 +25,7 @@ db.devices = new Datastore({
 
 // user authentication
 
-var bcrypt = require('bcrypt');
+// #TODO: Add encryption, as a university project we don't need it, but if you want to run it yourself you absolutely need it
 
 db.userdata = new Datastore({
 	filename: config.databaseLocation + 'userdata.db',
