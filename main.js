@@ -6,6 +6,10 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express(); // define our app using express
 
+// email
+var mailer = require("nodemailer");
+var gmailAccount = require('./gmailAccount');
+
 // database
 var Datastore = require('nedb');
 var db = {};
@@ -15,6 +19,26 @@ var fs = require('fs');
 // config & app info
 var config = require('./config');
 var appInfo = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+// email setup
+
+var smtpTransport = mailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: gmailAccount.email,
+    pass: gmailAccount.password
+  }
+});
+
+var mail = {
+    from: "Your Door",
+    to: config.email,
+    subject: "",
+    text: "",
+    html: ""
+}
 
 // database setup
 
@@ -147,7 +171,7 @@ router.post('/register', function(req, res) {
 			}
 		);
 	} else {
-		res.sendStatus(422); // #TODO: Error codes
+		res.sendStatus(422);
 	}
 });
 
@@ -201,7 +225,6 @@ router.post('/scan/new', function(req, res) {
 				};
 				db.tags.insert(tempObject);
 				res.json(tempObject);
-				// #TODO: send message to client.android
 			} else {
 				res.sendStatus(409); // conflict, tag already exists
 			}
@@ -236,9 +259,43 @@ router.post('/scan', function(req, res) {
 			});
 		}
 
+		// #TODO: Add groups
+		db.tags.find({ $not: {$or: querry} }, function(err, docs) {
+
+			if (docs) {
+				// if an item is not scanned
+				missingObjects = [];
+				for (var i = 0; i < docs.length; i++) {
+					debugMessage("missing: " + docs[i].name);
+					missingObjects.push(docs[i].name);
+				}
+
+				var mail = {
+				    from: "Your Door",
+				    to: config.email,
+				    subject: "You forgot something!",
+				    text: "You forgot: " + missingObjects.join(", ") + ".",
+				    html: "You forgot: <b>" + missingObjects.join(", ") + "</b>."
+				}
+
+				smtpTransport.sendMail(mail, function(error, response){
+				    if(error){
+				        console.log(error);
+				    }else{
+				        console.log("Message sent: " + mail.text);
+				    }
+
+				    smtpTransport.close();
+				});
+			}
+
+		});
+
 		db.tags.find({ $or: querry }, function(err, docs) {
 			if (docs) {
 				// success! we scanned a tag that already exists.
+
+
 				res.json(docs);
 			} else {
 				res.sendStatus(404);
@@ -285,14 +342,6 @@ router.post('/user/login', function(req, res) {
 	if (req.body.username && req.body.password) {
 		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
 			if (req.body.password === docs.pass) {
-				// TODO: figure out what this token is for
-				// var tokenObject = {
-				// 	user: req.body.username,
-				// 	token: (sessionToken = hash(
-				// 		new Date() + req.body.username
-				// 	))
-				// };
-				// db.sessions.insert(tokenObject);
 				res.sendStatus(200);
 				return;
 			}
