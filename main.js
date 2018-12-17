@@ -208,6 +208,8 @@ router.post('/edit', function(req, res) {
 				res.sendStatus(500); // something went wrong somewhere.
 			}
 		});
+	} else {
+		res.sendStatus(422);
 	}
 });
 
