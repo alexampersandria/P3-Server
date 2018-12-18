@@ -160,16 +160,40 @@ router.get('/package.json', function(req, res) {
 router.post('/register', function(req, res) {
 	ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 	if (req.body.mac_address) {
-		db.devices.insert(
-			{
-				mac_address: req.body.mac_address,
-				register_time: new Date(),
-				ip_address: ip_address
-			},
-			function(err, doc) {
-				res.json(doc);
+		db.devices.findOne({ mac_address: req.body.mac_address }, function(err, docs) {
+			if (!docs) {
+				// if device with mac address doesn't exist in database, create entry
+				db.devices.insert(
+					{
+						mac_address: req.body.mac_address,
+						register_time: new Date(),
+						ip_address: ip_address
+					},
+					function(err, doc) {
+						res.json(doc);
+					}
+				);
+			} else {
+				// if device has already been registered, update the entry
+				db.devices.update(
+					{ mac_address: req.body.mac_address },
+					{
+						$set: {
+							register_time: new Date(),
+							ip_address: ip_address
+						}
+					}
+				);
+				
+				db.devices.findOne({ mac_address: req.body.mac_address }, function(err, docs) {
+					if (docs) {
+						res.json(docs);
+					} else {
+						res.sendStatus(500); // something went wrong somewhere
+					}
+				});
 			}
-		);
+		});
 	} else {
 		res.sendStatus(422);
 	}
