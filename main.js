@@ -21,6 +21,8 @@ var config = require('./config');
 var appInfo = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
 // email setup
+// You need to active access for less secure apps to your Google account which you send mails from for this to work
+// https://support.google.com/accounts/answer/6010255?p=lsa_blocked&hl=en&visit_id=636807283429313522-2066820742&rd=1
 
 var smtpTransport = mailer.createTransport({
   host: 'smtp.gmail.com',
@@ -31,14 +33,6 @@ var smtpTransport = mailer.createTransport({
     pass: gmailAccount.password
   }
 });
-
-var mail = {
-    from: "Your Door",
-    to: config.email,
-    subject: "",
-    text: "",
-    html: ""
-}
 
 // database setup
 
@@ -286,8 +280,8 @@ router.post('/scan', function(req, res) {
 		}
 
 		// #TODO: Add groups
+		// send email about missing items
 		db.tags.find({ $not: {$or: querry} }, function(err, docs) {
-
 			if (docs) {
 				// if an item is not scanned
 				missingObjects = [];
@@ -296,32 +290,41 @@ router.post('/scan', function(req, res) {
 					missingObjects.push(docs[i].name);
 				}
 
+				recipients = [];
+				db.userdata.find({}, function(err, docs) {
+					if (docs) {
+						docs.forEach(entry => {
+							recipients.push(entry.user);
+						});
+					}
+				});
+
 				var mail = {
 				    from: "Your Door",
-				    to: config.email,
+				    to: recipients,
 				    subject: "You forgot something!",
 				    text: "You forgot: " + missingObjects.join(", ") + ".",
 				    html: "You forgot: <b>" + missingObjects.join(", ") + "</b>."
 				}
 
-				smtpTransport.sendMail(mail, function(error, response){
-				    if(error){
+				smtpTransport.sendMail(mail, function(error, response) {
+				    if(error) {
 				        console.log(error);
-				    }else{
-				        console.log("Message sent: " + mail.text);
+				    } else{
+						recipients.forEach(recipient => {
+							console.log("Message sent to " + recipient + ": " + mail.text);
+						});
 				    }
 
 				    smtpTransport.close();
 				});
 			}
-
 		});
 
+		// send info about tags that were scanned
 		db.tags.find({ $or: querry }, function(err, docs) {
 			if (docs) {
 				// success! we scanned a tag that already exists.
-
-
 				res.json(docs);
 			} else {
 				res.sendStatus(404);
