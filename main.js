@@ -159,10 +159,10 @@ router.get('/package.json', function(req, res) {
 
 router.post('/register', function(req, res) {
 	ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-	if (req.body.device_type) {
+	if (req.body.mac_address) {
 		db.devices.insert(
 			{
-				device_type: req.body.device_type,
+				mac_address: req.body.mac_address,
 				register_time: new Date(),
 				ip_address: ip_address
 			},
