@@ -106,7 +106,7 @@ Register a user.
 ```JSON
 Required body:
 {
-  "user": "[USER]",
+  "email": "[EMAIL]",
   "password": "[PASSWORD]"
 }
 ```
@@ -118,7 +118,7 @@ Log into an account.
 ```JSON
 Required body:
 {
-  "user": "[USER]",
+  "email": "[EMAIL]",
   "password": "[PASSWORD]"
 }
 ```

@@ -294,7 +294,7 @@ router.post('/scan', function(req, res) {
 				db.userdata.find({}, function(err, docs) {
 					if (docs) {
 						docs.forEach(entry => {
-							recipients.push(entry.user);
+							recipients.push(entry.email);
 						});
 					}
 				});
@@ -338,26 +338,26 @@ router.post('/scan', function(req, res) {
 // users
 
 router.get('/user/:id', function(req, res) {
-	db.userdata.findOne({ user: req.params.id }, function(err, docs) {
+	db.userdata.findOne({ email: req.params.id }, function(err, docs) {
 		delete docs.pass; // remove password from JSON response
 		res.json(docs);
 	});
 });
 
 router.post('/user/register', function(req, res) {
-	if (req.body.username && req.body.password) {
-		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+	if (req.body.email && req.body.password) {
+		db.userdata.findOne({ email: req.body.email }, function(err, docs) {
 			if (!docs) {
-				// if user with given username doesn't exist
+				// if user with given email doesn't exist
 				db.userdata.insert({
-					user: req.body.username,
+					email: req.body.email,
 					pass: req.body.password,
 					admin: false
 				});
 				res.sendStatus(200);
 			} else {
 				debugMessage(
-					format('User %s already exists', req.body.username)
+					format('User %s already exists', req.body.email)
 				);
 				res.sendStatus(409);
 			}
@@ -368,13 +368,13 @@ router.post('/user/register', function(req, res) {
 });
 
 router.post('/user/login', function(req, res) {
-	if (req.body.username && req.body.password) {
-		db.userdata.findOne({ user: req.body.username }, function(err, docs) {
+	if (req.body.email && req.body.password) {
+		db.userdata.findOne({ email: req.body.email }, function(err, docs) {
 			if (req.body.password === docs.pass) {
 				res.sendStatus(200);
 				return;
 			}
-			debugMessage(format('User %s already exists', req.body.username));
+			debugMessage(format('User %s already exists', req.body.email));
 			res.sendStatus(409);
 		});
 	} else {
