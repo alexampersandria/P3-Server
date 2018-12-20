@@ -208,7 +208,7 @@ router.get('/tags', function(req, res) {
 // client.android #TODO: add auth for "production".
 
 router.post('/edit', function(req, res) {
-	if (req.body.id && req.body.name && req.body.desc) {
+	if (req.body.id && req.body.name && typeof req.body.desc !== 'undefined') {
 		db.tags.update(
 			{ _id: req.body.id },
 			{
