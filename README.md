@@ -142,14 +142,8 @@ Returns:
 
 Retrieve information about server.
 
-```JSON
 Returns:
-{
-  "name": "[APP NAME]",
-  "version": "[VERSION]",
-  ...
-}
-```
+[package.json](package.json)
 
 **GET /api/devices**
 
