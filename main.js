@@ -231,6 +231,18 @@ router.post('/edit', function(req, res) {
 	}
 });
 
+router.post('/delete', function(req, res) {
+	if (req.body.id) {
+		db.tags.remove(
+			{ _id: req.body.id }
+		);
+
+		res.sendStatus(200);
+	} else {
+		res.sendStatus(422);
+	}
+});
+
 // nodemcu.f_module
 
 router.post('/scan/new', function(req, res) {

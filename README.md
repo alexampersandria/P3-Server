@@ -99,6 +99,20 @@ Returns:
 }
 ```
 
+**POST /api/delete**
+
+Deletes a tag.
+
+```JSON
+Required body:
+{
+  "id": "[TAG ID]"
+}
+
+Returns:
+200 OK
+```
+
 **POST /api/user/register**
 
 Register a user.
