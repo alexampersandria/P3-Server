@@ -374,7 +374,7 @@ router.post('/user/login', function(req, res) {
 				res.sendStatus(200);
 				return;
 			}
-			debugMessage(format('User %s already exists', req.body.email));
+			debugMessage(format('Passwords do not match'));
 			res.sendStatus(409);
 		});
 	} else {
