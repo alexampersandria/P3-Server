@@ -208,7 +208,7 @@ router.get('/tags', function(req, res) {
 // client.android #TODO: add auth for "production".
 
 router.post('/edit', function(req, res) {
-	if (req.body.id && req.body.name && req.body.desc) {
+	if (req.body.id && req.body.name && typeof req.body.desc !== 'undefined') {
 		db.tags.update(
 			{ _id: req.body.id },
 			{
@@ -226,6 +226,18 @@ router.post('/edit', function(req, res) {
 				res.sendStatus(500); // something went wrong somewhere.
 			}
 		});
+	} else {
+		res.sendStatus(422);
+	}
+});
+
+router.post('/delete', function(req, res) {
+	if (req.body.id) {
+		db.tags.remove(
+			{ _id: req.body.id }
+		);
+
+		res.sendStatus(200);
 	} else {
 		res.sendStatus(422);
 	}

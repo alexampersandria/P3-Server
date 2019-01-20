@@ -99,6 +99,20 @@ Returns:
 }
 ```
 
+**POST /api/delete**
+
+Deletes a tag.
+
+```JSON
+Required body:
+{
+  "id": "[TAG ID]"
+}
+
+Returns:
+200 OK
+```
+
 **POST /api/user/register**
 
 Register a user.
@@ -142,14 +156,8 @@ Returns:
 
 Retrieve information about server.
 
-```JSON
 Returns:
-{
-  "name": "[APP NAME]",
-  "version": "[VERSION]",
-  ...
-}
-```
+[package.json](package.json)
 
 **GET /api/devices**
 
